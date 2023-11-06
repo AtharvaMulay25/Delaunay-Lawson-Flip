@@ -1,45 +1,45 @@
-#include "../headers/triangle.h"
+#include "../include/triangle.hpp"
+
 #include <stdio.h>
-#include <iostream>
+
 #include <fstream>
+#include <iostream>
+
 using namespace std;
 
-ofstream flip_out(".\\output\\flips.txt");
+ofstream flip_out("./flips.txt");
 int cnt;
 
-triangle::triangle()
-{
-    // ctor
+triangle::triangle() {}
+
+triangle::~triangle() {}
+
+triangle::triangle(edge a, edge b, edge c) {
+    e1 = a, e2 = b, e3 = c;
 }
 
-triangle::~triangle()
-{
-    // dtor
-}
-
-triangle::triangle(edge a, edge b, edge c)
-{
-    e1 = a;
-    e2 = b;
-    e3 = c;
-}
-
-bool triangle ::common_edge(triangle t1, triangle t2) // Test if two triangles have a common edge
-{
-    if (t1.e1 == t2.e1 || t1.e1 == t2.e2 || t1.e1 == t2.e3)
+// test if two triangles have a common edge
+bool triangle::common_edge(triangle t1, triangle t2) {
+    if (t1.e1 == t2.e1 || t1.e1 == t2.e2 || t1.e1 == t2.e3) {
         return true;
+    }
 
-    if (t1.e2 == t2.e1 || t1.e2 == t2.e2 || t1.e2 == t2.e3)
+    if (t1.e2 == t2.e1 || t1.e2 == t2.e2 || t1.e2 == t2.e3) {
         return true;
+    }
 
-    if (t1.e3 == t2.e1 || t1.e3 == t2.e2 || t1.e3 == t2.e3)
+    if (t1.e3 == t2.e1 || t1.e3 == t2.e2 || t1.e3 == t2.e3) {
         return true;
+    }
 
     return false;
 }
 
-bool triangle ::test_flip(triangle &t1, triangle &t2)
-{
+void triangle::ended() {
+    flip_out << "\n\n-------------------- End --------------------\n\n";
+}
+
+bool triangle::test_flip(triangle &t1, triangle &t2) {
     point a, b, c, d;
     edge vekt1[3];
     edge vekt2[3];
@@ -67,47 +67,33 @@ bool triangle ::test_flip(triangle &t1, triangle &t2)
             if (vekt1[i] == vekt2[j])
                 goto found;
 found:
-    a = vekt1[i].start; // AB is the common edge of the triangles
+    a = vekt1[i].start;  // AB is the common edge of the triangles
     b = vekt1[i].end;
 
-    for (i = 0; i < 3; ++i) // C is in triangle T1 but not in T2
+    for (i = 0; i < 3; ++i)  // C is in triangle T1 but not in T2
     {
-        if (vekt1[i].start != a && vekt1[i].start != b)
-        {
+        if (vekt1[i].start != a && vekt1[i].start != b) {
             c = vekt1[i].start;
             break;
         }
-        if (vekt1[i].end != a && vekt1[i].end != b)
-        {
+        if (vekt1[i].end != a && vekt1[i].end != b) {
             c = vekt1[i].end;
             break;
         }
     }
 
-    for (i = 0; i < 3; ++i) // C is in triangle T1 but not in T2
+    for (i = 0; i < 3; ++i)  // C is in triangle T1 but not in T2
     {
-        if (vekt2[i].start != a && vekt2[i].start != b)
-        {
+        if (vekt2[i].start != a && vekt2[i].start != b) {
             d = vekt2[i].start;
             break;
         }
-        if (vekt2[i].end != a && vekt2[i].end != b)
-        {
+        if (vekt2[i].end != a && vekt2[i].end != b) {
             d = vekt2[i].end;
             break;
         }
     }
 
-    /*std::cout<<a.x<<' '<<a.y<<'\n';
-    std::cout<<b.x<<' '<<b.y<<'\n';
-    std::cout<<c.x<<' '<<c.y<<'\n';
-    std::cout<<d.x<<' '<<d.y<<'\n';
-    cout<<'\n';
-
-    ++cnt;
-    if(cnt==2)
-        int scv=2;
-    */
     orientation = point::orientation(a, b, c);
 
     ad_x = a.x - d.x;
@@ -126,14 +112,8 @@ found:
     det = ad_x * bd_y * c33 + bd_x * cd_y * c31 + cd_x * ad_y * c32;
     det -= (c31 * bd_y * cd_x + c32 * cd_y * ad_x + c33 * ad_y * bd_x);
 
-    /*std::cout<<orientation<<'\n';
-    std::cout<<det;
-    */
-
-    if (det == 0)
-    {
-        if (a.x == b.x)
-        {
+    if (det == 0) {
+        if (a.x == b.x) {
             flip_out << "FLIP edge " << a.x << ' ' << a.y << "  " << b.x << ' ' << b.y << "   TO   " << c.x << ' ' << c.y << "  " << d.x << ' ' << d.y << '\n';
 
             t1.e1.start = a;
@@ -150,13 +130,8 @@ found:
             t2.e3.start = d;
             t2.e3.end = b;
             return 1;
-        }
-
-        else
-        {
-            if (b.x > a.x && b.y < a.y)
-            {
-
+        } else {
+            if (b.x > a.x && b.y < a.y) {
                 flip_out << "FLIP edge " << a.x << ' ' << a.y << "  " << b.x << ' ' << b.y << "   TO   " << c.x << ' ' << c.y << "  " << d.x << ' ' << d.y << '\n';
 
                 t1.e1.start = a;
@@ -174,9 +149,7 @@ found:
                 t2.e3.end = b;
                 return 1;
             }
-            if (b.x < a.x && b.y > a.y)
-            {
-
+            if (b.x < a.x && b.y > a.y) {
                 flip_out << "FLIP edge " << a.x << ' ' << a.y << "  " << b.x << ' ' << b.y << "   TO   " << c.x << ' ' << c.y << "  " << d.x << ' ' << d.y << '\n';
 
                 t1.e1.start = a;
@@ -197,10 +170,8 @@ found:
         }
     }
 
-    if (orientation > 0)
-    {
-        if (det > 0)
-        {
+    if (orientation > 0) {
+        if (det > 0) {
             flip_out << "FLIP " << a.x << ' ' << a.y << "  " << b.x << ' ' << b.y << " TO " << c.x << ' ' << c.y << "  " << d.x << ' ' << d.y << '\n';
 
             t1.e1.start = a;
@@ -219,11 +190,8 @@ found:
 
             return 1;
         }
-    }
-    else
-    {
-        if (det < 0)
-        {
+    } else {
+        if (det < 0) {
             flip_out << "FLIP edge " << a.x << ' ' << a.y << "  " << b.x << ' ' << b.y << "   TO   " << c.x << ' ' << c.y << "  " << d.x << ' ' << d.y << '\n';
 
             t1.e1.start = a;
@@ -243,9 +211,4 @@ found:
         }
     }
     return 0;
-}
-
-void triangle::ended()
-{
-    flip_out << "\n\n---end---\n\n";
 }
